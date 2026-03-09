@@ -5,9 +5,34 @@ import { axiosInstance, handleError } from "../client.js";
 
 export function registerTaskTools(server: McpServer) {
   server.registerTool(
-    "task_get_body",
+    "get_tasks",
     {
-      description: "Get the body content of a project task",
+      description: "List tasks in a project",
+      inputSchema: {
+        project_id: z.string().describe("Project ID"),
+        parent_post_id: z.string().optional().describe("Parent post ID to filter by"),
+        page: z.number().optional().default(0).describe("Page number"),
+        size: z.number().optional().default(20).describe("Number of items per page"),
+      },
+    },
+    async ({ project_id, parent_post_id, page, size }) => {
+      try {
+        const response = await axiosInstance.get(`/project/v1/projects/${project_id}/posts`, {
+          params: { parentPostId: parent_post_id, page, size },
+        });
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_task_by_id",
+    {
+      description: "Get the content of a project task",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -26,9 +51,9 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_update_body",
+    "update_task",
     {
-      description: "Update the body content of a project task",
+      description: "Update the content of a project task",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -50,7 +75,35 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_get_comments",
+    "create_task",
+    {
+      description: "Create a new task in a project",
+      inputSchema: {
+        project_id: z.string().describe("Project ID"),
+        subject: z.string().describe("Task subject"),
+        body: z.string().describe("Task body content"),
+      },
+    },
+    async ({ project_id, subject, body }) => {
+      try {
+        const response = await axiosInstance.post(`/project/v1/projects/${project_id}/posts`, {
+          subject,
+          body: {
+            content: body,
+            mimeType: "text/markdown",
+          },
+        });
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_task_comments",
     {
       description: "Get comments (logs) of a project task",
       inputSchema: {
@@ -71,7 +124,7 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_get_comment",
+    "get_task_comment_by_id",
     {
       description: "Get a specific comment (log) of a project task",
       inputSchema: {
@@ -93,7 +146,7 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_create_comment",
+    "create_task_comment",
     {
       description: "Create a comment (log) in a project task",
       inputSchema: {
@@ -117,7 +170,7 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_update_comment",
+    "update_task_comment",
     {
       description: "Update a comment (log) in a project task",
       inputSchema: {
@@ -142,7 +195,7 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_download_attachment",
+    "download_task_attachment",
     {
       description: "Download an attachment from a project task",
       inputSchema: {
@@ -168,7 +221,7 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
-    "task_upload_attachment",
+    "upload_task_attachment",
     {
       description: "Upload an attachment to a project task",
       inputSchema: {

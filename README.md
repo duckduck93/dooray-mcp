@@ -46,32 +46,40 @@ export DOORAY_API_TOKEN='your-api-token-here'
 ## 제공되는 도구 (Tools)
 
 ### 프로젝트 (Project)
-- `project_get_info`: 프로젝트의 태그, 상태, 멤버, ID 등 정보를 가져옵니다.
+- `get_projects`: 내 프로젝트 목록을 가져옵니다.
+  - `page`, `size`
+- `get_project_by_id`: 프로젝트의 태그, 상태, 멤버, ID 등 정보를 가져옵니다.
   - `project_id`: 프로젝트 ID 또는 이름
 
 ### 업무 (Task)
-- `task_get_body`: 특정 업무의 본문 내용을 가져옵니다.
+- `get_tasks`: 프로젝트 내 업무 목록을 가져옵니다.
+  - `project_id`, `parent_post_id`, `page`, `size`
+- `get_task_by_id`: 특정 업무의 내용을 가져옵니다.
   - `project_id`, `task_id`
-- `task_update_body`: 특정 업무의 본문 내용을 수정합니다.
+- `create_task`: 새로운 업무를 생성합니다.
+  - `project_id`, `subject`, `body`
+- `update_task`: 특정 업무의 내용을 수정합니다.
   - `project_id`, `task_id`, `body`
-- `task_get_comments`: 업무에 달린 댓글(로그) 목록을 가져옵니다.
+- `get_task_comments`: 업무에 달린 댓글(로그) 목록을 가져옵니다.
   - `project_id`, `task_id`
-- `task_get_comment`: 특정 댓글(로그)의 정보를 가져옵니다.
+- `get_task_comment_by_id`: 특정 댓글(로그)의 정보를 가져옵니다.
   - `project_id`, `task_id`, `log_id`
-- `task_create_comment`: 업무에 댓글(로그)을 작성합니다.
+- `create_task_comment`: 업무에 댓글(로그)을 작성합니다.
   - `project_id`, `task_id`, `body`
-- `task_update_comment`: 특정 댓글(로그)의 내용을 수정합니다.
+- `update_task_comment`: 특정 댓글(로그)의 내용을 수정합니다.
   - `project_id`, `task_id`, `log_id`, `body`
-- `task_download_attachment`: 업무의 첨부파일을 다운로드합니다 (Base64 인코딩).
+- `download_task_attachment`: 업무의 첨부파일을 다운로드합니다 (Base64 인코딩).
   - `project_id`, `task_id`, `file_id`
-- `task_upload_attachment`: 업무에 첨부파일을 업로드합니다.
+- `upload_task_attachment`: 업무에 첨부파일을 업로드합니다.
   - `project_id`, `task_id`, `file_content_base64`, `file_name`
 
 ### 위키 (Wiki)
-- `wiki_get_body`: 특정 위키의 본문 내용을 가져옵니다.
+- `get_wiki_by_id`: 특정 위키의 본문 내용을 가져옵니다.
   - `project_id`, `wiki_id`
-- `wiki_update_body`: 특정 위키의 본문 내용을 수정합니다.
+- `update_wiki`: 특정 위키의 본문 내용을 수정합니다.
   - `project_id`, `wiki_id`, `body`
+- `get_wiki_children`: 특정 위키의 하위 위키(업무) 목록을 가져옵니다.
+  - `project_id`, `wiki_id`, `page`, `size`
 
 ## 개발 스크립트
 - `npm run build`: TypeScript 코드를 dist 폴더로 컴파일합니다.
