@@ -54,10 +54,14 @@ export DOORAY_API_TOKEN='your-api-token-here'
   - `project_id`, `task_id`
 - `task_update_body`: 특정 업무의 본문 내용을 수정합니다.
   - `project_id`, `task_id`, `body`
-- `task_get_comments`: 업무에 달린 댓글 목록을 가져옵니다.
+- `task_get_comments`: 업무에 달린 댓글(로그) 목록을 가져옵니다.
   - `project_id`, `task_id`
-- `task_update_comment`: 특정 댓글의 내용을 수정합니다.
-  - `project_id`, `task_id`, `comment_id`, `body`
+- `task_get_comment`: 특정 댓글(로그)의 정보를 가져옵니다.
+  - `project_id`, `task_id`, `log_id`
+- `task_create_comment`: 업무에 댓글(로그)을 작성합니다.
+  - `project_id`, `task_id`, `body`
+- `task_update_comment`: 특정 댓글(로그)의 내용을 수정합니다.
+  - `project_id`, `task_id`, `log_id`, `body`
 - `task_download_attachment`: 업무의 첨부파일을 다운로드합니다 (Base64 인코딩).
   - `project_id`, `task_id`, `file_id`
 - `task_upload_attachment`: 업무에 첨부파일을 업로드합니다.

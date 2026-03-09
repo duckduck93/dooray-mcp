@@ -52,7 +52,7 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "task_get_comments",
     {
-      description: "Get comments of a project task",
+      description: "Get comments (logs) of a project task",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -60,7 +60,53 @@ export function registerTaskTools(server: McpServer) {
     },
     async ({ project_id, task_id }) => {
       try {
-        const response = await axiosInstance.get(`/project/v1/projects/${project_id}/posts/${task_id}/comments`);
+        const response = await axiosInstance.get(`/project/v1/projects/${project_id}/posts/${task_id}/logs`);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "task_get_comment",
+    {
+      description: "Get a specific comment (log) of a project task",
+      inputSchema: {
+        project_id: z.string().describe("Project ID"),
+        task_id: z.string().describe("Task ID"),
+        log_id: z.string().describe("Log (Comment) ID"),
+      },
+    },
+    async ({ project_id, task_id, log_id }) => {
+      try {
+        const response = await axiosInstance.get(`/project/v1/projects/${project_id}/posts/${task_id}/logs/${log_id}`);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "task_create_comment",
+    {
+      description: "Create a comment (log) in a project task",
+      inputSchema: {
+        project_id: z.string().describe("Project ID"),
+        task_id: z.string().describe("Task ID"),
+        body: z.string().describe("Comment body content"),
+      },
+    },
+    async ({ project_id, task_id, body }) => {
+      try {
+        const response = await axiosInstance.post(`/project/v1/projects/${project_id}/posts/${task_id}/logs`, {
+          body: { content: body, mimeType: "text/markdown" },
+        });
         return {
           content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
         };
@@ -73,18 +119,18 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "task_update_comment",
     {
-      description: "Update a comment in a project task",
+      description: "Update a comment (log) in a project task",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
-        comment_id: z.string().describe("Comment ID"),
+        log_id: z.string().describe("Log (Comment) ID"),
         body: z.string().describe("New comment body content"),
       },
     },
-    async ({ project_id, task_id, comment_id, body }) => {
+    async ({ project_id, task_id, log_id, body }) => {
       try {
-        await axiosInstance.put(`/project/v1/projects/${project_id}/posts/${task_id}/comments/${comment_id}`, {
-          content: { body: { content: body, mimeType: "text/markdown" } },
+        await axiosInstance.put(`/project/v1/projects/${project_id}/posts/${task_id}/logs/${log_id}`, {
+          body: { content: body, mimeType: "text/markdown" },
         });
         return {
           content: [{ type: "text" as const, text: "Successfully updated comment" }],
