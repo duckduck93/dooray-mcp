@@ -4,6 +4,29 @@ import { axiosInstance, handleError } from "../client.js";
 
 export function registerWikiTools(server: McpServer) {
   server.registerTool(
+    "get_wikis",
+    {
+      description: "List accessible wikis",
+      inputSchema: {
+        page: z.number().optional().describe("Page number (default: 0)"),
+        size: z.number().optional().describe("Page size (default: 20)"),
+      },
+    },
+    async ({ page, size }) => {
+      try {
+        const response = await axiosInstance.get("/wiki/v1/wikis", {
+          params: { page, size },
+        });
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_wiki_by_id",
     {
       description: "Get the body content of a project wiki page",
