@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import FormData from "form-data";
-import { axiosInstance, handleError } from "../client.js";
+import { axiosInstance, fileApiRequest, handleError } from "../client.js";
 
 export function registerTaskTools(server: McpServer) {
   server.registerTool(
@@ -257,7 +257,8 @@ export function registerTaskTools(server: McpServer) {
     },
     async ({ project_id, task_id, file_id }) => {
       try {
-        const response = await axiosInstance.get(
+        const response = await fileApiRequest(
+          "get",
           `/project/v1/projects/${project_id}/posts/${task_id}/files/${file_id}`,
           { params: { media: "raw" }, responseType: "arraybuffer" },
         );
@@ -288,10 +289,11 @@ export function registerTaskTools(server: McpServer) {
         const formData = new FormData();
         formData.append("file", fileBuffer, { filename: file_name });
 
-        const response = await axiosInstance.post(
+        const response = await fileApiRequest(
+          "post",
           `/project/v1/projects/${project_id}/posts/${task_id}/files`,
-          formData,
           { headers: formData.getHeaders() },
+          formData,
         );
         return {
           content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],

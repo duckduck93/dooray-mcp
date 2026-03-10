@@ -135,4 +135,39 @@ describe("task tools (integration)", () => {
       expect(result.content[0].text).toBe("Successfully updated comment");
     });
   });
+
+  describe("upload_task_attachment (307 리다이렉트 파일 업로드)", () => {
+    let uploadedFileId: string;
+
+    it("should upload a file via 307 redirect", async () => {
+      // 간단한 텍스트 파일을 base64로 인코딩
+      const testContent = "Hello, Dooray! 파일 업로드 통합 테스트입니다.";
+      const base64Content = Buffer.from(testContent).toString("base64");
+
+      const result = await tools["upload_task_attachment"]!.handler({
+        project_id: config.projectId,
+        task_id: createdTaskId,
+        file_content_base64: base64Content,
+        file_name: "integration-test.txt",
+      });
+
+      expect(result.isError).toBeUndefined();
+      const data = JSON.parse(result.content[0].text);
+      expect(data.header.isSuccessful).toBe(true);
+      uploadedFileId = data.result.id;
+      expect(uploadedFileId).toBeDefined();
+    });
+
+    it("should download the uploaded file", async () => {
+      const result = await tools["download_task_attachment"]!.handler({
+        project_id: config.projectId,
+        task_id: createdTaskId,
+        file_id: uploadedFileId,
+      });
+
+      expect(result.isError).toBeUndefined();
+      const decoded = Buffer.from(result.content[0].text, "base64").toString("utf-8");
+      expect(decoded).toContain("파일 업로드 통합 테스트");
+    });
+  });
 });
