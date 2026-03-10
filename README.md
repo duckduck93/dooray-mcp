@@ -45,23 +45,30 @@ export DOORAY_API_TOKEN='your-api-token-here'
 
 ## 제공되는 도구 (Tools)
 
+### 멤버 (Member)
+- `get_current_member`: 현재 인증된 사용자의 정보를 가져옵니다.
+
 ### 프로젝트 (Project)
-- `get_projects`: 내 프로젝트 목록을 가져옵니다.
-  - `page`, `size`
+- `get_projects`: 내가 속한 프로젝트 목록을 가져옵니다.
+  - `page`, `size`, `state`, `scope`, `type`
 - `get_project_by_id`: 프로젝트의 태그, 상태, 멤버, ID 등 정보를 가져옵니다.
-  - `project_id`: 프로젝트 ID 또는 이름
+  - `project_id`
+- `get_project_tags`: 프로젝트의 태그 목록을 가져옵니다.
+  - `project_id`, `page`, `size`
+- `get_project_milestones`: 프로젝트의 마일스톤(단계) 목록을 가져옵니다.
+  - `project_id`, `page`, `size`, `status`
 
 ### 업무 (Task)
 - `get_tasks`: 프로젝트 내 업무 목록을 가져옵니다.
-  - `project_id`, `parent_post_id`, `page`, `size`
+  - `project_id`, `parent_post_id`, `page`, `size`, `order`, `post_workflow_classes`, `tag_ids`, `milestone_ids`, `to_member_ids`, `from_member_ids`, `cc_member_ids`, `post_workflow_ids`, `created_at`, `updated_at`, `due_at`
 - `get_task_by_id`: 특정 업무의 내용을 가져옵니다.
   - `project_id`, `task_id`
 - `create_task`: 새로운 업무를 생성합니다.
-  - `project_id`, `subject`, `body`
-- `update_task`: 특정 업무의 내용을 수정합니다.
-  - `project_id`, `task_id`, `body`
+  - `project_id`, `subject`, `body`, `parent_post_id`, `due_date`, `priority`, `milestone_id`, `tag_ids`
+- `update_task`: 업무를 수정합니다.
+  - `project_id`, `task_id`, `subject`, `body`, `due_date`, `priority`, `milestone_id`, `tag_ids`
 - `get_task_comments`: 업무에 달린 댓글(로그) 목록을 가져옵니다.
-  - `project_id`, `task_id`
+  - `project_id`, `task_id`, `page`, `size`, `order`
 - `get_task_comment_by_id`: 특정 댓글(로그)의 정보를 가져옵니다.
   - `project_id`, `task_id`, `log_id`
 - `create_task_comment`: 업무에 댓글(로그)을 작성합니다.
@@ -74,12 +81,16 @@ export DOORAY_API_TOKEN='your-api-token-here'
   - `project_id`, `task_id`, `file_content_base64`, `file_name`
 
 ### 위키 (Wiki)
-- `get_wiki_by_id`: 특정 위키의 본문 내용을 가져옵니다.
-  - `project_id`, `wiki_id`
-- `update_wiki`: 특정 위키의 본문 내용을 수정합니다.
-  - `project_id`, `wiki_id`, `body`
-- `get_wiki_children`: 특정 위키의 하위 위키(업무) 목록을 가져옵니다.
-  - `project_id`, `wiki_id`, `page`, `size`
+- `get_wikis`: 접근 가능한 위키 목록을 가져옵니다.
+  - `page`, `size`
+- `get_wiki_by_id`: 특정 위키 페이지의 본문 내용을 가져옵니다.
+  - `page_id`
+- `create_wiki`: 새로운 위키 페이지를 생성합니다.
+  - `wiki_id`, `subject`, `body`, `parent_page_id`
+- `update_wiki`: 특정 위키 페이지의 본문 내용을 수정합니다.
+  - `wiki_id`, `page_id`, `body`
+- `get_wiki_children`: 특정 위키 페이지의 하위 페이지 목록을 가져옵니다.
+  - `wiki_id`, `page_id`
 
 ## 개발 스크립트
 - `npm run build`: TypeScript 코드를 dist 폴더로 컴파일합니다.

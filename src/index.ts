@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerProjectTools } from "./tools/project.js";
 import { registerTaskTools } from "./tools/task.js";
 import { registerWikiTools } from "./tools/wiki.js";
+import { registerMemberTools } from "./tools/member.js";
 
 class DoorayMcpServer {
   private server: McpServer;
@@ -27,6 +28,7 @@ class DoorayMcpServer {
     registerProjectTools(this.server);
     registerTaskTools(this.server);
     registerWikiTools(this.server);
+    registerMemberTools(this.server);
   }
 
   async run() {

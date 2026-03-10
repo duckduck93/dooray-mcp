@@ -74,6 +74,36 @@ export function registerWikiTools(server: McpServer) {
   );
 
   server.registerTool(
+    "create_wiki",
+    {
+      description: "Create a new wiki page",
+      inputSchema: {
+        wiki_id: z.string().describe("Wiki ID"),
+        subject: z.string().describe("Wiki page title"),
+        body: z.string().describe("Wiki page body content (markdown)"),
+        parent_page_id: z.string().optional().describe("Parent page ID (omit for top-level page)"),
+      },
+    },
+    async ({ wiki_id, subject, body, parent_page_id }) => {
+      try {
+        const response = await axiosInstance.post(`/wiki/v1/wikis/${wiki_id}/pages`, {
+          subject,
+          body: {
+            mimeType: "text/x-markdown",
+            content: body,
+          },
+          ...(parent_page_id && { parentPageId: parent_page_id }),
+        });
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_wiki_children",
     {
       description: "Get child pages of a specific wiki page",
