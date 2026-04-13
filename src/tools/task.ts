@@ -111,23 +111,32 @@ export function registerTaskTools(server: McpServer) {
     "update_task",
     {
       description:
-        "Update a Dooray task's properties: subject, body, due date, priority, milestone, or tags. This does NOT change workflow status — use update_task_workflow instead for status changes.",
+        "Update a Dooray task's properties: subject, body, assignees, due date, priority, milestone, or tags. This does NOT change workflow status — use update_task_workflow instead for status changes.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
         subject: z.string().optional().describe("New task subject"),
         body: z.string().optional().describe("New task body content"),
+        users_to: z.array(z.string()).optional().describe("Array of member IDs to assign as task assignees (담당자)"),
         due_date: z.string().optional().describe("Due date in ISO8601 format"),
         priority: z.enum(["highest", "high", "normal", "low", "lowest", "none"]).optional().describe("Task priority"),
         milestone_id: z.string().optional().describe("Milestone/Phase ID"),
         tag_ids: z.array(z.string()).optional().describe("Array of tag IDs to assign"),
       },
     },
-    async ({ project_id, task_id, subject, body, due_date, priority, milestone_id, tag_ids }) => {
+    async ({ project_id, task_id, subject, body, users_to, due_date, priority, milestone_id, tag_ids }) => {
       try {
         await axiosInstance.put(`/project/v1/projects/${project_id}/posts/${task_id}`, {
           ...(subject && { subject }),
           ...(body && { body: { mimeType: "text/x-markdown", content: body } }),
+          ...(users_to?.length && {
+            users: {
+              to: users_to.map((id) => ({
+                type: "member",
+                member: { organizationMemberId: id },
+              })),
+            },
+          }),
           ...(due_date && { dueDate: due_date, dueDateFlag: true }),
           ...(priority && { priority }),
           ...(milestone_id && { milestoneId: milestone_id }),
@@ -146,11 +155,12 @@ export function registerTaskTools(server: McpServer) {
     "create_task",
     {
       description:
-        "Create a new task in a Dooray project. Requires subject and body. Optionally set parent_post_id to create a subtask, plus due_date, priority, milestone, and tags.",
+        "Create a new task in a Dooray project. Requires subject and body. Optionally set users_to to assign members, parent_post_id to create a subtask, plus due_date, priority, milestone, and tags.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         subject: z.string().describe("Task subject"),
         body: z.string().describe("Task body content"),
+        users_to: z.array(z.string()).optional().describe("Array of member IDs to assign as task assignees (담당자)"),
         parent_post_id: z.string().optional().describe("Parent post ID (for creating subtasks)"),
         due_date: z.string().optional().describe("Due date in ISO8601 format"),
         priority: z.enum(["highest", "high", "normal", "low", "lowest", "none"]).optional().describe("Task priority"),
@@ -158,7 +168,7 @@ export function registerTaskTools(server: McpServer) {
         tag_ids: z.array(z.string()).optional().describe("Array of tag IDs to assign"),
       },
     },
-    async ({ project_id, subject, body, parent_post_id, due_date, priority, milestone_id, tag_ids }) => {
+    async ({ project_id, subject, body, users_to, parent_post_id, due_date, priority, milestone_id, tag_ids }) => {
       try {
         const response = await axiosInstance.post(`/project/v1/projects/${project_id}/posts`, {
           subject,
@@ -166,6 +176,14 @@ export function registerTaskTools(server: McpServer) {
             content: body,
             mimeType: "text/x-markdown",
           },
+          ...(users_to?.length && {
+            users: {
+              to: users_to.map((id) => ({
+                type: "member",
+                member: { organizationMemberId: id },
+              })),
+            },
+          }),
           ...(parent_post_id && { parentPostId: parent_post_id }),
           ...(due_date && { dueDate: due_date, dueDateFlag: true }),
           ...(priority && { priority }),
