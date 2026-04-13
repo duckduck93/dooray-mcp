@@ -9,7 +9,8 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "get_tasks",
     {
-      description: "List tasks in a project",
+      description:
+        "Search and list tasks in a Dooray project with various filters. Returns a paginated list of tasks with id, subject, workflow status, priority, assignees, and dates. Requires project_id from get_projects.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         parent_post_id: z.string().optional().describe("Parent post ID to filter subtasks"),
@@ -88,7 +89,7 @@ export function registerTaskTools(server: McpServer) {
     "get_task_by_id",
     {
       description:
-        "Get full details of a project task including subject, body, workflow, assignees, tags, milestone, priority, dates, and more",
+        "Get full details of a single Dooray task including subject, body content, workflow status, assignees (to/cc/from), tags, milestone, priority, dates, and attachments. Requires both project_id and task_id.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -109,7 +110,8 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "update_task",
     {
-      description: "Update a project task",
+      description:
+        "Update a Dooray task's properties: subject, body, due date, priority, milestone, or tags. This does NOT change workflow status — use update_task_workflow instead for status changes.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -143,7 +145,8 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "create_task",
     {
-      description: "Create a new task in a project",
+      description:
+        "Create a new task in a Dooray project. Requires subject and body. Optionally set parent_post_id to create a subtask, plus due_date, priority, milestone, and tags.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         subject: z.string().describe("Task subject"),
@@ -179,9 +182,36 @@ export function registerTaskTools(server: McpServer) {
   );
 
   server.registerTool(
+    "update_task_workflow",
+    {
+      description:
+        "Change a Dooray task's workflow status (e.g. To Do → In Progress → Done). Requires a workflow_id — call get_project_workflows first to list available workflows and their IDs for the project.",
+      inputSchema: {
+        project_id: z.string().describe("Project ID"),
+        task_id: z.string().describe("Task ID"),
+        workflow_id: z.string().describe("Target workflow ID to transition to"),
+      },
+    },
+    async ({ project_id, task_id, workflow_id }) => {
+      try {
+        const response = await axiosInstance.post(
+          `/project/v1/projects/${project_id}/posts/${task_id}/set-workflow`,
+          { toBeWorkflowId: workflow_id },
+        );
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(response.data, null, 2) }],
+        };
+      } catch (error) {
+        return handleError(error);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_task_comments",
     {
-      description: "Get comments (logs) of a project task",
+      description:
+        "List comments on a Dooray task in chronological order. Returns paginated comment list with id, body, author, and timestamps.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -210,7 +240,7 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "get_task_comment_by_id",
     {
-      description: "Get a specific comment (log) of a project task",
+      description: "Get a single comment's full content from a Dooray task by its log_id.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -232,7 +262,7 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "create_task_comment",
     {
-      description: "Create a comment (log) in a project task",
+      description: "Add a new comment to a Dooray task. Body content supports Markdown format.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -256,7 +286,7 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "update_task_comment",
     {
-      description: "Update a comment (log) in a project task",
+      description: "Update an existing comment on a Dooray task. Replaces the comment body with new Markdown content.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -281,7 +311,8 @@ export function registerTaskTools(server: McpServer) {
   server.registerTool(
     "download_task_attachment",
     {
-      description: "Download an attachment from a project task",
+      description:
+        "Download a file attachment from a Dooray task. Returns the file content as base64 encoded string. Requires file_id from the task's file list.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),
@@ -309,7 +340,7 @@ export function registerTaskTools(server: McpServer) {
     "upload_task_attachment",
     {
       description:
-        "Upload an attachment to a project task. Provide either file_path (absolute path to local file) or file_content_base64 (base64 encoded content).",
+        "Upload a file attachment to a Dooray task. Provide either file_path (absolute path to a local file) or file_content_base64 (base64 encoded content). One of the two is required.",
       inputSchema: {
         project_id: z.string().describe("Project ID"),
         task_id: z.string().describe("Task ID"),

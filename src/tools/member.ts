@@ -5,7 +5,8 @@ export function registerMemberTools(server: McpServer) {
   server.registerTool(
     "get_current_member",
     {
-      description: "Get the current authenticated member's information",
+      description:
+        "Get the current authenticated Dooray member's profile including id, name, email, and organization. Useful for finding your own member ID for task filters.",
       inputSchema: {},
     },
     async () => {

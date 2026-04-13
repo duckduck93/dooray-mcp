@@ -6,7 +6,8 @@ export function registerWikiTools(server: McpServer) {
   server.registerTool(
     "get_wikis",
     {
-      description: "List accessible wikis",
+      description:
+        "List all Dooray wiki spaces accessible to the current user. Returns wiki id, name, and description. A wiki space contains multiple pages — use the wiki id with other wiki tools.",
       inputSchema: {
         page: z.number().optional().describe("Page number (default: 0)"),
         size: z.number().optional().describe("Page size (default: 20)"),
@@ -29,7 +30,7 @@ export function registerWikiTools(server: McpServer) {
   server.registerTool(
     "get_wiki_by_id",
     {
-      description: "Get the body content of a project wiki page",
+      description: "Get the body content of a Dooray wiki page by its page_id. Returns the page content in Markdown format.",
       inputSchema: {
         page_id: z.string().describe("Wiki Page ID"),
       },
@@ -49,7 +50,8 @@ export function registerWikiTools(server: McpServer) {
   server.registerTool(
     "update_wiki",
     {
-      description: "Update the body content of a project wiki page",
+      description:
+        "Update the body content of a Dooray wiki page. Requires both wiki_id (wiki space) and page_id (specific page). Replaces the entire page body with new Markdown content.",
       inputSchema: {
         wiki_id: z.string().describe("Wiki ID"),
         page_id: z.string().describe("Wiki Page ID"),
@@ -76,7 +78,8 @@ export function registerWikiTools(server: McpServer) {
   server.registerTool(
     "create_wiki",
     {
-      description: "Create a new wiki page",
+      description:
+        "Create a new page in a Dooray wiki space. Requires wiki_id, subject (title), and body (Markdown). Optionally set parent_page_id to create a subpage under an existing page.",
       inputSchema: {
         wiki_id: z.string().describe("Wiki ID"),
         subject: z.string().describe("Wiki page title"),
@@ -106,7 +109,8 @@ export function registerWikiTools(server: McpServer) {
   server.registerTool(
     "get_wiki_children",
     {
-      description: "Get child pages of a specific wiki page",
+      description:
+        "List child (sub) pages under a specific Dooray wiki page. Returns page id, subject, and order. Use this to navigate the wiki page hierarchy.",
       inputSchema: {
         wiki_id: z.string().describe("Wiki ID"),
         page_id: z.string().describe("Parent Wiki Page ID"),
